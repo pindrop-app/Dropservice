@@ -1,0 +1,6 @@
+server:
+  port: 8080
+
+google:
+  places:
+    api-key: YOUR_GOOGLE_PLACES_API_KEY
