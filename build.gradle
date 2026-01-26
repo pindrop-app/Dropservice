@@ -16,10 +16,26 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-web' // Expose REST APIs + Parse JSON request bodies + Return JSON responses
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'com.google.firebase:firebase-admin:9.4.2'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'software.amazon.awssdk:auth' // handles AWS authentication & request signing
+    implementation "software.amazon.awssdk:regions"
+    implementation 'org.springframework.security:spring-security-crypto' // password hashing
+
+    implementation platform('software.amazon.awssdk:bom:2.25.60')
+    implementation 'software.amazon.awssdk:dynamodb'
+    implementation 'software.amazon.awssdk:dynamodb-enhanced'
+
+
+    // Auth dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-security' // Authentication & authorization framework
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
