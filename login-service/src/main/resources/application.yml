@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+app:
+  aws:
+    region: us-east-2
+  tables:
+    users: Users
+  users:
+    pk-prefix: "USER#"
+    sk-value: "PROFILE"
+
+
+logging:
+  level:
+    root: INFO
+    com.pindrop: DEBUG

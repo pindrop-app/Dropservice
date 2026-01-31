@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: Loop-Service
+
+server:
+  port : 8082
+aws:
+  region: us-east-2
+  dynamodb:
+    loops-table: Loops

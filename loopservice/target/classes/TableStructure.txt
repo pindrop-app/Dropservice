@@ -1,0 +1,66 @@
+3.1 Loop metadata item (the main one)
+
+Represents the loop itself.
+
+PK = LOOP#A1B2C3
+SK = META
+
+
+Attributes:
+
+loopId = A1B2C3
+name = "Startup Founders"
+description = "For early-stage founders"
+isPrivate = true
+creatorId = USER#1
+memberCount = 2
+createdAt = 2026-01-23T10:00
+gsi1pk = DISCOVER
+gsi1sk = A1B2C3
+
+
+This is what Discover returns.
+
+3.2 Loop member item
+
+Represents a user inside a loop.
+
+PK = LOOP#A1B2C3
+SK = MEMBER#USER#1
+
+
+Attributes:
+
+userId = USER#1
+role = CREATOR
+joinedAt = 2026-01-23T10:00
+
+
+Another member:
+
+PK = LOOP#A1B2C3
+SK = MEMBER#USER#2
+role = MEMBER
+
+3.3 User → loop mapping
+
+So you can get “my loops”.
+
+PK = USER#2
+SK = LOOP#A1B2C3
+role = MEMBER
+
+3.4 Join request (for private loops)
+
+User requests to join.
+
+PK = LOOP#A1B2C3
+SK = REQUEST#USER#5
+status = PENDING
+requestedAt = 2026-01-23T12:00
+
+3.5 Invite (owner invites someone)
+PK = INVITE#test@gmail.com
+SK = LOOP#A1B2C3
+status = PENDING
+senderId = USER#1

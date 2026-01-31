@@ -1,0 +1,454 @@
+import { useState } from 'react';
+import { Users, Plus, Search, Settings, UserPlus, Hash, Star, Heart, MessageCircle, Bookmark, Share, Send, MapPin, Globe, Lock, MoreHorizontal } from 'lucide-react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Avatar } from './ui/avatar';
+import { Badge } from './ui/badge';
+import { Card } from './ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { toast } from 'sonner';
+
+interface LoopPost {
+  id: string;
+  user: {
+    name: string;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  hashtags: string[];
+  image?: string;
+  location: string;
+  timestamp: string;
+  vibes: number;
+  drips: number;
+  pinits: number;
+  flings: number;
+  dropScore: number;
+  isVibed: boolean;
+  isPinned: boolean;
+}
+
+interface Loop {
+  id: string;
+  name: string;
+  description: string;
+  memberCount: number;
+  avatar: string;
+  coverImage: string;
+  isPrivate: boolean;
+  isJoined: boolean;
+  tags: string[];
+  posts: LoopPost[];
+}
+
+const mockLoops: Loop[] = [
+  {
+    id: '1',
+    name: 'Foodies United',
+    description: 'Discovering the best local eats and hidden gems across the city',
+    memberCount: 1247,
+    avatar: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=150&h=150&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=300&fit=crop',
+    isPrivate: false,
+    isJoined: true,
+    tags: ['food', 'restaurants', 'local'],
+    posts: [
+      {
+        id: 'c1',
+        user: {
+          name: 'Harsha',
+          username: 'harsha_foodie',
+          avatar: ''
+        },
+        content: 'Finally tried the legendary chicken biryani at Paradise! The flavors are absolutely incredible - perfectly spiced rice, tender chicken pieces, and that authentic Hyderabadi taste. Worth every single bite! 🔥',
+        hashtags: ['#ChickenBiryani', '#ParadiseRestaurant', '#HyderabadiBiryani'],
+        image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=800&h=600&fit=crop',
+        location: 'Paradise Restaurant, Kukatpally',
+        timestamp: '2h ago',
+        vibes: 156,
+        drips: 24,
+        pinits: 67,
+        flings: 12,
+        dropScore: 96,
+        isVibed: true,
+        isPinned: false
+      }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Coffee Explorers',
+    description: 'Third wave coffee culture and hidden cafes worth discovering',
+    memberCount: 892,
+    avatar: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=150&h=150&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=300&fit=crop',
+    isPrivate: false,
+    isJoined: false,
+    tags: ['coffee', 'cafes', 'barista'],
+    posts: []
+  },
+  {
+    id: '3',
+    name: 'Street Art Hunters',
+    description: 'Documenting urban art and supporting local artists worldwide',
+    memberCount: 567,
+    avatar: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=150&h=150&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=300&fit=crop',
+    isPrivate: true,
+    isJoined: true,
+    tags: ['art', 'street', 'culture'],
+    posts: []
+  }
+];
+
+export function Loops() {
+  const [activeTab, setActiveTab] = useState('discover');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [loops, setLoops] = useState(mockLoops);
+
+  const getRatingColor = (score: number) => {
+    if (score >= 90) return 'from-red-500 to-red-600';
+    if (score >= 80) return 'from-orange-500 to-orange-600';
+    if (score >= 70) return 'from-yellow-500 to-yellow-600';
+    if (score >= 60) return 'from-green-500 to-green-600';
+    return 'from-gray-500 to-gray-600';
+  };
+
+  const handleJoinLoop = (loopId: string) => {
+    setLoops(loops.map(loop =>
+      loop.id === loopId
+        ? { ...loop, isJoined: true, memberCount: loop.memberCount + 1 }
+        : loop
+    ));
+    toast.success('Joined loop successfully!');
+  };
+
+  const handleJoinByCode = () => {
+    if (joinCode.trim()) {
+      toast.success(`Joined loop with code: ${joinCode}`);
+      setJoinCode('');
+      setShowJoinDialog(false);
+    }
+  };
+
+  const filteredLoops = loops.filter(loop =>
+    loop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    loop.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    loop.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const joinedLoops = loops.filter(loop => loop.isJoined);
+
+  return (
+    <div className="pb-20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-medium text-foreground">Loops</h2>
+          <div className="flex items-center space-x-2">
+            <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  Join by ID
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Join Loop by ID</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Enter loop ID..."
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value)}
+                  />
+                  <Button onClick={handleJoinByCode} className="w-full">
+                    Join Loop
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Create
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Loop</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input placeholder="Loop name..." />
+                  <Input placeholder="Description..." />
+                  <Button onClick={() => setShowCreateDialog(false)} className="w-full">
+                    Create Loop
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="discover">Discover</TabsTrigger>
+            <TabsTrigger value="joined">My Loops ({joinedLoops.length})</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsContent value="discover" className="space-y-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search loops..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Loop List */}
+            <div className="space-y-4">
+              {filteredLoops.map((loop) => (
+                <Card key={loop.id} className="overflow-hidden">
+                  {/* Cover Image */}
+                  <div className="relative h-32">
+                    <ImageWithFallback
+                      src={loop.coverImage}
+                      alt={loop.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/30" />
+                    <div className="absolute top-3 right-3">
+                      {loop.isPrivate ? (
+                        <Badge className="bg-gray-500 text-white">
+                          <Lock className="h-3 w-3 mr-1" />
+                          Private
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-green-500 text-white">
+                          <Globe className="h-3 w-3 mr-1" />
+                          Public
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    {/* Loop Info */}
+                    <div className="flex items-start space-x-3 mb-3">
+                      <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+                        <ImageWithFallback
+                          src={loop.avatar}
+                          alt={loop.name}
+                          className="object-cover"
+                        />
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground">{loop.name}</h3>
+                        <p className="text-sm text-muted-foreground">{loop.description}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-xs text-muted-foreground">
+                            {loop.memberCount.toLocaleString()} members
+                          </span>
+                          <div className="flex items-center space-x-1">
+                            {loop.tags.slice(0, 2).map((tag, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                #{tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <Button
+                      onClick={() => handleJoinLoop(loop.id)}
+                      disabled={loop.isJoined}
+                      className="w-full"
+                      variant={loop.isJoined ? 'outline' : 'default'}
+                    >
+                      {loop.isJoined ? 'Joined' : 'Join Loop'}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="joined" className="space-y-4">
+            {joinedLoops.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No loops joined yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Join loops to connect with people who share your interests
+                </p>
+                <Button onClick={() => setActiveTab('discover')}>
+                  Discover Loops
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {joinedLoops.map((loop) => (
+                  <div key={loop.id} className="space-y-4">
+                    {/* Loop Header */}
+                    <Card className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-12 w-12">
+                          <ImageWithFallback
+                            src={loop.avatar}
+                            alt={loop.name}
+                            className="object-cover"
+                          />
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground">{loop.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {loop.memberCount.toLocaleString()} members
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </Card>
+
+                    {/* Loop Posts */}
+                    {loop.posts.map((pin) => (
+                      <div key={pin.id} className="bg-card border border-border rounded-lg mx-4 mb-6 overflow-hidden">
+                        {/* Pin Content */}
+                        <div className="p-4 space-y-3">
+                          {/* User Header */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3 cursor-pointer">
+                              <Avatar className="h-10 w-10">
+                                <ImageWithFallback
+                                  src={pin.user.avatar}
+                                  alt={pin.user.name}
+                                  className="object-cover"
+                                />
+                              </Avatar>
+                              <div>
+                                <div className="flex items-center space-x-2">
+                                  <p className="font-medium text-foreground">@{pin.user.username}</p>
+                                  <span className="text-muted-foreground">•</span>
+                                  <span className="text-sm text-muted-foreground">{pin.timestamp}</span>
+                                  <div className="flex items-center space-x-1 text-muted-foreground">
+                                    <MapPin className="h-3 w-3" />
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-1 cursor-pointer hover:text-foreground transition-colors">
+                                  <span className="text-sm text-muted-foreground">{pin.location}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </div>
+
+                          {/* Content */}
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-foreground leading-relaxed">{pin.content}</p>
+                              {pin.hashtags.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {pin.hashtags.map((tag, index) => (
+                                    <Badge key={index} variant="secondary" className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {pin.image && (
+                              <div className="relative rounded-lg overflow-hidden cursor-pointer border border-border">
+                                <ImageWithFallback
+                                  src={pin.image}
+                                  alt="Pin content"
+                                  className="w-full h-64 object-cover"
+                                />
+                                {/* Rating Badge - Bottom Left (like attachment) */}
+                                <div className="absolute bottom-3 left-3">
+                                  <div className={`
+                                    w-12 h-12 rounded-full flex items-center justify-center
+                                    bg-gradient-to-br ${getRatingColor(pin.dropScore)} text-white shadow-lg
+                                  `}>
+                                    <span className="font-bold text-sm">
+                                      {pin.dropScore}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center justify-between pt-2 border-t border-border">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`flex items-center space-x-1 ${pin.isVibed ? 'text-red-500' : 'text-muted-foreground'} hover:text-red-500`}
+                            >
+                              <Heart className={`h-5 w-5 ${pin.isVibed ? 'fill-current' : ''}`} />
+                              <span className="text-sm">{pin.vibes}</span>
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="flex items-center space-x-1 text-muted-foreground hover:text-purple-500"
+                            >
+                              <MessageCircle className="h-5 w-5" />
+                              <span className="text-sm">{pin.drips}</span>
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`flex items-center space-x-1 ${pin.isPinned ? 'text-yellow-500' : 'text-muted-foreground'} hover:text-yellow-500`}
+                            >
+                              <Bookmark className={`h-5 w-5 ${pin.isPinned ? 'fill-current' : ''}`} />
+                              <span className="text-sm">PinIt</span>
+                            </Button>
+
+                            <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-muted-foreground hover:text-green-500">
+                              <Share className="h-5 w-5" />
+                              <span className="text-sm">Fling</span>
+                            </Button>
+
+                            <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-muted-foreground hover:text-blue-500">
+                              <Send className="h-5 w-5" />
+                              <span className="text-sm">Pinping</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}

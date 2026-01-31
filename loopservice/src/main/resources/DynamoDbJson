@@ -1,0 +1,56 @@
+{
+  "pk": {
+    "S": "test"
+  },
+  "sk": {
+    "S": "test"
+  },
+  "loopId": {
+    "S": "loopid"
+  },
+  "name": {
+    "S": "name"
+  },
+  "description": {
+    "S": "description"
+  },
+  "isPrivate": {
+    "BOOL": false
+  },
+  "creatorId": {
+    "S": "creatorId"
+  },
+  "memberCount": {
+    "N": "1"
+  },
+  "createdAt": {
+    "S": "createdAt"
+  },
+  "gsi1pk": {
+    "S": "gsi1pk"
+  },
+  "gsi1sk": {
+    "S": "gsi1pk"
+  },
+  "userId": {
+    "S": "userId"
+  },
+  "role": {
+    "S": "role"
+  },
+  "joinedAt": {
+    "S": "joinedAt"
+  },
+  "senderId": {
+    "S": "senderId"
+  },
+  "status": {
+    "S": "status"
+  },
+  "sentAt": {
+    "S": "sentAt"
+  },
+  "tag": {
+    "S": "tag"
+  }
+}

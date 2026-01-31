@@ -1,0 +1,474 @@
+import { useState } from 'react';
+import { Plus, Users, MapPin, Heart, Bookmark, MessageCircle, Share, Send, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Button } from './ui/button';
+import { Avatar } from './ui/avatar';
+import { Badge } from './ui/badge';
+import { Card } from './ui/card';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+
+interface GroupPin {
+  id: string;
+  groupId: string;
+  groupName: string;
+  groupColor: string;
+  user: {
+    name: string;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  image?: string;
+  location: string;
+  timestamp: string;
+  vibes: number;
+  drips: number;
+  pinits: number;
+  flings: number;
+  dropScore: number;
+  isVibed: boolean;
+  isPinned: boolean;
+  vibeUsers: string[];
+}
+
+interface Group {
+  id: string;
+  name: string;
+  bio: string;
+  members: number;
+  color: string;
+  avatar: string;
+  isJoined: boolean;
+}
+
+const mockGroups: Group[] = [
+  {
+    id: '1',
+    name: 'Foodies Unite',
+    bio: 'Sharing the best food spots across the city',
+    members: 2847,
+    color: 'bg-orange-500',
+    avatar: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=150&h=150&fit=crop',
+    isJoined: true
+  },
+  {
+    id: '2',
+    name: 'Mumbai Explorers',
+    bio: 'Discovering hidden gems in Mumbai',
+    members: 1523,
+    color: 'bg-blue-500',
+    avatar: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=150&h=150&fit=crop',
+    isJoined: false
+  },
+  {
+    id: '3',
+    name: 'Coffee Lovers',
+    bio: 'Best coffee shops and brewing tips',
+    members: 892,
+    color: 'bg-amber-700',
+    avatar: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=150&h=150&fit=crop',
+    isJoined: true
+  },
+  {
+    id: '4',
+    name: 'Street Art Hunters',
+    bio: 'Finding amazing street art around the world',
+    members: 674,
+    color: 'bg-purple-500',
+    avatar: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=150&h=150&fit=crop',
+    isJoined: false
+  }
+];
+
+const mockGroupPins: GroupPin[] = [
+  {
+    id: '1',
+    groupId: '1',
+    groupName: 'Foodies Unite',
+    groupColor: 'bg-orange-500',
+    user: {
+      name: 'Harsha',
+      username: 'harsha_foodie',
+      avatar: ''
+    },
+    content: 'Finally tried the legendary chicken biryani at Paradise! The flavors are absolutely incredible - perfectly spiced rice, tender chicken pieces.',
+    image: 'https://images.unsplash.com/photo-1563379091339-03246963d31a?w=800&h=600&fit=crop',
+    location: 'Paradise Restaurant, Kukatpally',
+    timestamp: '1h ago',
+    vibes: 156,
+    drips: 24,
+    pinits: 67,
+    flings: 12,
+    dropScore: 96,
+    isVibed: false,
+    isPinned: true,
+    vibeUsers: ['Ravi', 'Priya']
+  },
+  {
+    id: '2',
+    groupId: '3',
+    groupName: 'Coffee Lovers',
+    groupColor: 'bg-amber-700',
+    user: {
+      name: 'Sarah Chen',
+      username: 'sarahc',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face'
+    },
+    content: 'This coffee shop has the most incredible latte art! Perfect spot for remote work sessions.',
+    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=600&fit=crop',
+    location: 'Brew & Bytes Cafe, Downtown',
+    timestamp: '4h ago',
+    vibes: 42,
+    drips: 12,
+    pinits: 18,
+    flings: 7,
+    dropScore: 78,
+    isVibed: false,
+    isPinned: true,
+    vibeUsers: ['Emma', 'Marcus']
+  },
+  {
+    id: '3',
+    groupId: '4',
+    groupName: 'Street Art Hunters',
+    groupColor: 'bg-purple-500',
+    user: {
+      name: 'Marcus Johnson',
+      username: 'marcusj',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+    },
+    content: 'Street art scene here is absolutely incredible. Each mural tells a story about community and resilience.',
+    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
+    location: 'Arts District',
+    timestamp: '6h ago',
+    vibes: 91,
+    drips: 23,
+    pinits: 35,
+    flings: 15,
+    dropScore: 88,
+    isVibed: true,
+    isPinned: false,
+    vibeUsers: ['Luna', 'David']
+  },
+  {
+    id: '4',
+    groupId: '1',
+    groupName: 'Foodies Unite',
+    groupColor: 'bg-orange-500',
+    user: {
+      name: 'Emma Rodriguez',
+      username: 'emmar',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+    },
+    content: 'Found this amazing taco truck! Best late night food in the city.',
+    image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&h=600&fit=crop',
+    location: 'Downtown Food District',
+    timestamp: '8h ago',
+    vibes: 34,
+    drips: 7,
+    pinits: 22,
+    flings: 4,
+    dropScore: 82,
+    isVibed: false,
+    isPinned: false,
+    vibeUsers: ['Alex', 'Sarah']
+  }
+];
+
+export function Groups() {
+  const [groups, setGroups] = useState(mockGroups);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+
+  const handleJoinGroup = (groupId: string) => {
+    setGroups(groups.map(group =>
+      group.id === groupId
+        ? { ...group, isJoined: !group.isJoined, members: group.isJoined ? group.members - 1 : group.members + 1 }
+        : group
+    ));
+  };
+
+  const getScoreStyle = (score: number) => {
+    if (score >= 80) {
+      return 'bg-green-100 text-green-700 border-green-300';
+    } else if (score >= 60) {
+      return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+    } else if (score >= 40) {
+      return 'bg-orange-100 text-orange-700 border-orange-300';
+    } else {
+      return 'bg-red-100 text-red-700 border-red-300';
+    }
+  };
+
+  const getGroupPins = (groupId: string) => {
+    return mockGroupPins.filter(pin => pin.groupId === groupId);
+  };
+
+  const GroupPinCard = ({ pin }: { pin: GroupPin }) => (
+    <div className="bg-card border border-border rounded-lg mx-4 mb-6 overflow-hidden relative">
+      {/* Drop Score Badge - Top Right */}
+      <div className="absolute top-3 right-3 z-10">
+        <div className={`
+          w-12 h-12 rounded-full flex items-center justify-center
+          border-2 shadow-lg
+          ${getScoreStyle(pin.dropScore)}
+        `}>
+          <span className="font-bold text-sm">
+            {pin.dropScore}
+          </span>
+        </div>
+      </div>
+
+      {/* Pin Content */}
+      <div className="p-4 space-y-3">
+        {/* Group Name Above User Header */}
+        {!selectedGroup && (
+          <div className="flex items-center space-x-2 pb-1">
+            <Badge className={`${pin.groupColor} text-white px-2 py-1 text-xs`}>
+              {pin.groupName}
+            </Badge>
+          </div>
+        )}
+
+        {/* User Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 cursor-pointer">
+            <Avatar className="h-10 w-10">
+              <ImageWithFallback
+                src={pin.user.avatar}
+                alt={pin.user.name}
+                className="object-cover"
+              />
+            </Avatar>
+            <div>
+              <div className="flex items-center space-x-2">
+                <p className="font-medium text-foreground">@{pin.user.username}</p>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-sm text-muted-foreground">{pin.timestamp}</span>
+                <div className="flex items-center space-x-1 text-muted-foreground">
+                  <MapPin className="h-3 w-3" />
+                </div>
+              </div>
+              <div className="flex items-center space-x-1 cursor-pointer hover:text-foreground transition-colors">
+                <span className="text-sm text-muted-foreground">{pin.location}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="space-y-3">
+          <div>
+            <p className="text-foreground leading-relaxed">{pin.content}</p>
+          </div>
+
+          {pin.image && (
+            <div className="rounded-lg overflow-hidden cursor-pointer border border-border">
+              <ImageWithFallback
+                src={pin.image}
+                alt="Pin content"
+                className="w-full h-64 object-cover"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Engagement Row */}
+        <div className="flex items-center justify-between pt-2 pb-1">
+          <div className="flex items-center space-x-1">
+            <Heart className={`h-4 w-4 ${pin.isVibed ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+            <span className="text-sm text-muted-foreground">
+              {pin.vibeUsers.slice(0, 2).join(' & ')} {pin.vibes > 2 ? `& ${pin.vibes - 2} others` : ''} vibed
+            </span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <Bookmark className={`h-4 w-4 ${pin.isPinned ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />
+            <span className="text-sm text-muted-foreground">PinIt'd by {pin.pinits}</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-muted-foreground hover:text-red-500">
+            <Heart className={`h-5 w-5 ${pin.isVibed ? 'fill-current' : ''}`} />
+            <span className="text-sm">{pin.vibes}</span>
+          </Button>
+
+          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-muted-foreground hover:text-purple-500">
+            <MessageCircle className="h-5 w-5" />
+            <span className="text-sm">{pin.drips}</span>
+          </Button>
+
+          <Button variant="ghost" size="sm" className={`flex items-center space-x-1 ${pin.isPinned ? 'text-yellow-500' : 'text-muted-foreground'} hover:text-yellow-500`}>
+            <Bookmark className={`h-5 w-5 ${pin.isPinned ? 'fill-current' : ''}`} />
+            <span className="text-sm">PinIt</span>
+          </Button>
+
+          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-muted-foreground hover:text-green-500">
+            <Share className="h-5 w-5" />
+            <span className="text-sm">Fling</span>
+          </Button>
+
+          <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-muted-foreground hover:text-blue-500">
+            <Send className="h-5 w-5" />
+            <span className="text-sm">Pinping</span>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Group Detail View
+  if (selectedGroup) {
+    const groupPins = getGroupPins(selectedGroup.id);
+
+    return (
+      <div className="pb-20">
+        {/* Group Header */}
+        <div className="p-4 border-b border-border bg-muted/5">
+          <div className="flex items-center space-x-3 mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedGroup(null)}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h2 className="font-medium text-foreground">{selectedGroup.name}</h2>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Avatar className="h-16 w-16">
+                <ImageWithFallback
+                  src={selectedGroup.avatar}
+                  alt={selectedGroup.name}
+                  className="object-cover"
+                />
+              </Avatar>
+              <div className={`absolute -bottom-1 -right-1 w-6 h-6 ${selectedGroup.color} rounded-full border-2 border-white`}></div>
+            </div>
+
+            <div className="flex-1">
+              <h3 className="font-medium text-foreground">{selectedGroup.name}</h3>
+              <p className="text-sm text-muted-foreground">{selectedGroup.bio}</p>
+              <div className="flex items-center space-x-1 mt-1">
+                <Users className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">{selectedGroup.members.toLocaleString()} members</span>
+              </div>
+            </div>
+
+            <Button
+              variant={selectedGroup.isJoined ? "secondary" : "default"}
+              onClick={() => handleJoinGroup(selectedGroup.id)}
+            >
+              {selectedGroup.isJoined ? 'Joined' : 'Join'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Group Posts */}
+        <div className="p-4">
+          <h3 className="font-medium text-foreground mb-4">{groupPins.length} Posts</h3>
+        </div>
+
+        {groupPins.map((pin) => (
+          <GroupPinCard key={pin.id} pin={pin} />
+        ))}
+
+        {groupPins.length === 0 && (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center space-y-2">
+              <h4 className="font-medium text-foreground">No posts yet</h4>
+              <p className="text-sm text-muted-foreground">Be the first to share something in this group!</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Main Groups View
+  return (
+    <div className="pb-20">
+      {/* Join/Create Groups Section */}
+      <div className="p-4 border-b border-border bg-muted/5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-medium text-foreground">Discover Groups</h2>
+          <Button
+            size="sm"
+            onClick={() => setShowCreateGroup(true)}
+            className="flex items-center space-x-1"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Create Group</span>
+          </Button>
+        </div>
+
+        {/* Groups Grid */}
+        <div className="grid grid-cols-1 gap-3">
+          {groups.map((group) => (
+            <Card key={group.id} className="p-4">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Avatar className="h-12 w-12">
+                    <ImageWithFallback
+                      src={group.avatar}
+                      alt={group.name}
+                      className="object-cover"
+                    />
+                  </Avatar>
+                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${group.color} rounded-full border-2 border-white`}></div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-foreground truncate">{group.name}</h3>
+                  <p className="text-sm text-muted-foreground truncate">{group.bio}</p>
+                  <div className="flex items-center space-x-1 mt-1">
+                    <Users className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">{group.members.toLocaleString()} members</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant={group.isJoined ? "secondary" : "default"}
+                    size="sm"
+                    onClick={() => handleJoinGroup(group.id)}
+                  >
+                    {group.isJoined ? 'Joined' : 'Join'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedGroup(group)}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Group Feed */}
+      <div className="p-4">
+        <h2 className="font-medium text-foreground mb-4">Group Feed</h2>
+      </div>
+
+      {/* Group Posts */}
+      {mockGroupPins.map((pin) => (
+        <GroupPinCard key={pin.id} pin={pin} />
+      ))}
+
+      {/* Loading indicator */}
+      <div className="p-8 text-center">
+        <div className="inline-flex items-center space-x-2 text-muted-foreground">
+          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse delay-75"></div>
+          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse delay-150"></div>
+        </div>
+      </div>
+    </div>
+  );
+}

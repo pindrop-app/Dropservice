@@ -1,0 +1,17 @@
+server:
+  port: 8084
+
+aws:
+  region: us-east-2
+  dynamodb:
+    pins-table: Pins
+    user-bookmarks-table: UserBookmarks
+
+
+google:
+  places:
+    api-key: ${GOOGLE_PLACES_API_KEY:}
+
+logging:
+  level:
+    com.pindrop: DEBUG
