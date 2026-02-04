@@ -23,16 +23,16 @@ public class SignupController {
         this.signupService = signupService;
     }
 
-    @PostMapping({"/signup", "/register/user"})
+    @PostMapping({ "/signup" })
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest req) {
         try {
-            String createdAt = signupService.register(req);
-            return ResponseEntity.ok(new SignupResponse(req.getLoginId().trim(), createdAt));
-        } catch (IllegalArgumentException e) {
+            SignupResponse response = signupService.register(req);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            log.error("signup failed userId={}", req.getLoginId(), e);
+                    .body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            log.error("signup failed userId={}", req.getLoginId(), ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Signup failed"));
         }

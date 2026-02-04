@@ -12,9 +12,21 @@ java {
 }
 
 
-repositories { mavenCentral() }
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/pindrop-app/TablestoreDDB")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user")
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
+        }
+    }
+}
 
 dependencies {
+    implementation 'com.pindrop:TablestoreDDB:0.0.1-SNAPSHOT'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'

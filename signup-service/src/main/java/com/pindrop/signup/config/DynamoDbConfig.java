@@ -1,5 +1,7 @@
 package com.pindrop.signup.config;
 
+import com.pindrop.tablestoreddb.DynamoTableStorageBuilder;
+import com.pindrop.tablestoreddb.TableStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +16,8 @@ public class DynamoDbConfig {
     private String awsRegion;
 
     @Bean
-    public DynamoDbClient dynamoDbClient() {
-        return DynamoDbClient.builder()
+    public TableStorage tableStorage() {
+        return new DynamoTableStorageBuilder()
                 .region(Region.of(awsRegion))
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();

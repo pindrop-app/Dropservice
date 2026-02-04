@@ -1,49 +1,32 @@
 package com.pindrop.signup.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class SignupRequest {
 
     @NotBlank
     private String loginId;
 
+    @Email
     @NotBlank
+    private String email;
+
+    @NotBlank
+    @Size(min = 8)
     private String password;
 
     @NotBlank
     private String dob;
 
+    @NotBlank
     private String displayName;
 
-    public String getLoginId() {
-        return loginId;
-    }
-
-    public void setLoginId(String loginId) {
-        this.loginId = loginId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDob() {
-        return dob;
-    }
-
-    public void setDob(String dob) {
-        this.dob = dob;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+    @NotBlank
+    private String gender;
 }
